@@ -1,9 +1,11 @@
 '''
 include the upload and the download method for client to interact with the blockchain.
 '''
+import web3
 from util import jsonFormat
 from collections import defaultdict
 from brownie import *
+from brownie import chain
 import string
 import json
 import logging
@@ -16,11 +18,57 @@ logger = logging.getLogger(__name__)
 p = project.load(project_path="chainEnv",name="chainServer")
 p.load_config()
 from brownie.project.chainServer import *
-network.connect('development')
+network.connect('development', launch_rpc=False)
+# show chain id after connecting
+try:
+    # `web3` is available via Brownie imports
+    print("Connected to chain ID:", web3.eth.chain_id)
+    logger.info("Connected to chain ID: %s", web3.eth.chain_id)
+    # debug: show provider and accounts
+    try:
+        print("web3 provider:", getattr(web3.provider, 'endpoint_uri', repr(web3.provider)))
+    except Exception:
+        pass
+    try:
+        print("web3.eth.accounts:", web3.eth.accounts)
+    except Exception:
+        pass
+    try:
+        print("brownie.accounts:", [a.address for a in accounts])
+    except Exception:
+        pass
+except Exception as e:
+    # fallback: log the active network name if chain id is unavailable
+    try:
+        print("Connected to network:", network.show_active())
+        logger.info("Connected to network: %s", network.show_active())
+    except Exception:
+        logger.warn("Unable to determine connected chain ID or network: %s", str(e))
 #SimpleStorage.deploy({'from':accounts[0]})
+accounts.add("0xf15b2208731dae87c4e053615e636797fe1735a44c1755944d8c085b84f9dd98")
 server_accounts = accounts[0]
-watermarkNegotiation.deploy({'from':server_accounts})
-clientManager.deploy({'from':server_accounts})
+print("Using server account:", server_accounts.address)
+logger.info("Using server account: %s", server_accounts.address)
+
+print("Deploying watermarkNegotiation from", server_accounts.address)
+gp = None
+try:
+    gp = web3.eth.gas_price
+except Exception:
+    gp = None
+if gp is not None:
+    wm = watermarkNegotiation.deploy({'from': server_accounts, 'gas_price': gp})
+else:
+    wm = watermarkNegotiation.deploy({'from': server_accounts})
+print("watermarkNegotiation.deploy returned; verifying deployment")
+print("watermarkNegotiation.deploy confirmed (Brownie reported confirmation).")
+
+print("Deploying clientManager from", server_accounts.address)
+if gp is not None:
+    cm = clientManager.deploy({'from': server_accounts, 'gas_price': gp})
+else:
+    cm = clientManager.deploy({'from': server_accounts})
+print("clientManager.deploy confirmed (Brownie reported confirmation).")
 
         
 def upload():

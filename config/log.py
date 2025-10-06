@@ -21,6 +21,11 @@ def get_file_name():
     
 
 def set_log_config():
+    # ensure log folder exists
+    try:
+        os.makedirs(log_folder, exist_ok=True)
+    except Exception:
+        pass
     logging.basicConfig(filename = get_file_name(), 
                         encoding = encoding, 
                         level = level,

@@ -34,13 +34,16 @@ class FashionMNIST(BenchMark):
     def __init__(self):
         super(FashionMNIST,self).__init__('FashionMNIST')
         self.global_args = {
-            'client_num': 10,
+            'client_num': 2,
             'model': 'simpleCNN',
             'dataset': 'FashionMNIST',
             'batch_size': 32,
             'class_num': 10,
             'data_folder': './data',
-            'communication_round': 200,
+            # Optional: limit dataset size for quick tests (set to None to use full dataset)
+            'max_train_samples': 2000,
+            'max_test_samples': 500,
+            'communication_round': 1,
             'non-iid': False,
             'alpha': 1,
         }
@@ -63,7 +66,7 @@ class CIFAR10(BenchMark):
             'batch_size': 32,
             'class_num': 10,
             'data_folder': './data',
-            'communication_round': 200,
+            'communication_round': 2,
             'non-iid': False,
             'alpha': 1,
         }
@@ -90,7 +93,7 @@ class Sign(BenchMark):
             'batch_size': 32,
             'class_num': 10,
             'data_folder': './data',
-            'communication_round': 200,
+            'communication_round': 2,
             'non-iid': False,
             'alpha': 1,
             'sign' : True,

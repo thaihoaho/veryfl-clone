@@ -7,3 +7,4 @@ chainEnv/interfaces/
 chainEnv/scripts/
 *.log
 TODO
+venv/
